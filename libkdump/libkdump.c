@@ -520,8 +520,8 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
 
     int i;
     for (i = 0; i < 256; i++) {
+      printf("Retries is : %d\ni is : %d\n", retries, i);
       if (flush_reload(mem + i * 4096)) {
-        printf("Retries is : %d\ni is : %d\n", retries, i);
         if (i >= 1) {
           return i;
         }
