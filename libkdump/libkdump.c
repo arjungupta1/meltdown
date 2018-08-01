@@ -536,11 +536,12 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
 int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   phys = addr;
 
+  //ascii table!!!! 
   char res_stat[256];
   int i, j, r;
   for (i = 0; i < 256; i++)
     res_stat[i] = 0;
-
+  
   //something to do with priority of the current thread
   sched_yield();
 
@@ -553,6 +554,7 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
       //otherwise read using normal fault handling?
       r = libkdump_read_signal_handler();
     }
+    //populates the 
     res_stat[r]++;
   }
   int max_v = 0, max_i = 0;
@@ -560,7 +562,8 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   if (dbg) {
     for (i = 0; i < sizeof(res_stat); i++) {
       if (res_stat[i] == 0)
-        continue;
+        debug(INFO, "res_stat[%x] = %d\n",
+            i, res_stat[i]);
       debug(INFO, "res_stat[%x] = %d\n",
             i, res_stat[i]);
     }
