@@ -495,6 +495,7 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_tsx() {
     for (i = 0; i < 256; i++) {
       if (flush_reload(mem + i * 4096)) {
         if (i >= 1) {
+          printf("flushed out %c\n", i);
           return i;
         }
       }
