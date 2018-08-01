@@ -19,7 +19,7 @@ static jmp_buf buf;
 static char *_mem = NULL, *mem = NULL;
 static pthread_t *load_thread;
 static size_t phys = 0;
-static int dbg = 0;
+static int dbg = 1;
 
 static libkdump_config_t config;
 
