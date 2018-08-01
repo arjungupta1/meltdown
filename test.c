@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
   printf("Expect: \x1b[32;1m%s\x1b[0m\n", test);
   printf("   Got: \x1b[33;1m");
-  while (index < strlen(test)) {
+  while (index < strlen(test) + 1) {
     int value = libkdump_read((size_t)(test + index));
     printf("Value of pointer: %c\n", *test);
     printf("Value of address pointed to: %p\n", test);
