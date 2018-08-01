@@ -1,4 +1,4 @@
-#include "libkdump.h"
+#include "libkdump//libkdump.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +21,16 @@ const char *strings[] = {
 int main(int argc, char *argv[]) {
   libkdump_config_t config;
   config = libkdump_get_autoconfig();
+  /**
+   * Cache miss threshold
+   * Fault handling
+   * Measurements
+   * Accept after 
+   * Load Threads
+   * Load Type
+   * Retries
+   * Physical Offset specification
+   **/
   libkdump_init(config);
 
   srand(time(NULL));
@@ -31,6 +41,11 @@ int main(int argc, char *argv[]) {
   printf("   Got: \x1b[33;1m");
   while (index < strlen(test)) {
     int value = libkdump_read((size_t)(test + index));
+    printf("Value of pointer: %c\n", *test);
+    printf("Value of address pointed to: %p\n", test);
+    printf("Value of pointer's address: %p\n", &test);
+
+    printf("Value of var value's address %p\n", &value);
     printf("%c", value);
     fflush(stdout);
     index++;
