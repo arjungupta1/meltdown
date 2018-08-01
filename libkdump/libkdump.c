@@ -521,6 +521,7 @@ int __attribute__((optimize("-Os"), noinline)) libkdump_read_signal_handler() {
     for (i = 0; i < 256; i++) {
       if (flush_reload(mem + i * 4096)) {
         if (i >= 1) {
+          printf("flushed out %c\n", i);
           return i;
         }
       }
@@ -543,7 +544,7 @@ int __attribute__((optimize("-O0"))) libkdump_read(size_t addr) {
     res_stat[i] = 0;
   
   //something to do with priority of the current thread
-  // sched_yield();
+  sched_yield();
 
   //make config.measurement number of measurements
   for (i = 0; i < config.measurements; i++) {
